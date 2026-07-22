@@ -32,20 +32,12 @@
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
-
-        .instructions {
-            color: #888;
-            margin-top: 15px;
-            font-size: 16px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
 
     <div id="score-board">Σκορ: 0</div>
     <canvas id="gameCanvas" width="400" height="500"></canvas>
-    <div class="instructions">Πατήστε το <b>Spacebar</b> ή κάντε <b>Κλικ</b> για να πετάξει ο Κλόουν!</div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -58,9 +50,9 @@
             y: 200,
             width: 28,  
             height: 28, 
-            gravity: 0.015, // Διατήρηση πολύ αργής πτώσης
+            gravity: 0.015, 
             velocity: 0,
-            jump: -1.8,     // Μειώθηκε από -2.8 για μικρότερο και πιο ελεγχόμενο άλμα
+            jump: -1.2,     // Μειώθηκε από -1.8 για ακόμα πιο μικρό άλμα
             emoji: "🤡"
         };
 
