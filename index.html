@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Clown vs Rusks (Super Easy Mode)</title>
+    <title>Flappy Clown vs Rusks</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,16 +58,16 @@
             y: 200,
             width: 28,  
             height: 28, 
-            gravity: 0.015, // Μειώθηκε στο μισό για ακόμα πιο αργή πτώση
+            gravity: 0.015, // Διατήρηση πολύ αργής πτώσης
             velocity: 0,
-            jump: -2.8,     // Αυξήθηκε για πιο γρήγορη και άμεση απόκριση στο ύψος
+            jump: -1.8,     // Μειώθηκε από -2.8 για μικρότερο και πιο ελεγχόμενο άλμα
             emoji: "🤡"
         };
 
         // Ρυθμίσεις Εμποδίων (Παξιμάδια)
         const rusks = [];
         const ruskWidth = 65;
-        const ruskGap = 220; // Αυξήθηκε από 180 σε 220 για τεράστιο κενό
+        const ruskGap = 220; 
         const ruskSpeed = 1.4; 
         let frameCount = 0;
         let score = 0;
@@ -144,9 +144,7 @@
             ctx.textBaseline = "top";
             ctx.fillText(clown.emoji, clown.x, clown.y);
 
-            // Συχνότητα εμφάνισης εμποδίων
             if (frameCount % 160 === 0) {
-                // Προσαρμογή του τυχαίου ύψους λόγω του μεγάλου κενού
                 const topRuskHeight = Math.floor(Math.random() * (canvas.height - ruskGap - 80)) + 40;
                 rusks.push({
                     x: canvas.width,
