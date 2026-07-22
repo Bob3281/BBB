@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Clown vs Rusks (Super Easy Mode)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #score-board {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            background-color: #252525;
+            border: 4px solid #ff4757;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+        }
+
+        .instructions {
+            color: #888;
+            margin-top: 15px;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score-board">Σκορ: 0</div>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <div class="instructions">Πατήστε το <b>Spacebar</b> ή κάντε <b>Κλικ</b> για να πετάξει ο Κλόουν!</div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreBoard = document.getElementById("score-board");
+
+        // Ρυθμίσεις Κλόουν
+        const clown = {
+            x: 60,
+            y: 200,
+            width: 28,  
+            height: 28, 
+            gravity: 0.015, // Μειώθηκε στο μισό για ακόμα πιο αργή πτώση
+            velocity: 0,
+            jump: -2.8,     // Αυξήθηκε για πιο γρήγορη και άμεση απόκριση στο ύψος
+            emoji: "🤡"
+        };
+
+        // Ρυθμίσεις Εμποδίων (Παξιμάδια)
+        const rusks = [];
+        const ruskWidth = 65;
+        const ruskGap = 220; // Αυξήθηκε από 180 σε 220 για τεράστιο κενό
+        const ruskSpeed = 1.4; 
+        let frameCount = 0;
+        let score = 0;
+        let gameOver = false;
+
+        function jumpAction() {
+            if (gameOver) {
+                resetGame();
+            } else {
+                clown.velocity = clown.jump;
+            }
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space") jumpAction();
+        });
+        canvas.addEventListener("click", jumpAction);
+
+        function resetGame() {
+            clown.y = 200;
+            clown.velocity = 0;
+            rusks.length = 0;
+            score = 0;
+            frameCount = 0;
+            gameOver = false;
+            scoreBoard.textContent = "Σκορ: " + score;
+            loop();
+        }
+
+        function drawRuskPillar(x, y, width, height) {
+            ctx.fillStyle = "#cd853f"; 
+            ctx.strokeStyle = "#8b5a2b";
+            ctx.lineWidth = 3;
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeRect(x, y, width, height);
+
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            const emojiSpacing = 26;
+            for (let offset = 15; offset < height; offset += emojiSpacing) {
+                ctx.fillText("🥖", x + width / 2 - 10, y + offset);
+                ctx.fillText("🥖", x + width / 2 + 10, y + offset);
+            }
+        }
+
+        function loop() {
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 32px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("Game Over 🤡", canvas.width / 2, canvas.height / 2 - 25);
+                ctx.font = "18px Arial";
+                ctx.fillStyle = "#ff4757";
+                ctx.fillText("Κάντε κλικ για επανακίνηση", canvas.width / 2, canvas.height / 2 + 25);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            clown.velocity += clown.gravity;
+            clown.y += clown.velocity;
+
+            if (clown.y + clown.height > canvas.height || clown.y < 0) {
+                gameOver = true;
+            }
+
+            ctx.font = `${clown.width}px Arial`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.fillText(clown.emoji, clown.x, clown.y);
+
+            // Συχνότητα εμφάνισης εμποδίων
+            if (frameCount % 160 === 0) {
+                // Προσαρμογή του τυχαίου ύψους λόγω του μεγάλου κενού
+                const topRuskHeight = Math.floor(Math.random() * (canvas.height - ruskGap - 80)) + 40;
+                rusks.push({
+                    x: canvas.width,
+                    top: topRuskHeight,
+                    bottom: canvas.height - topRuskHeight - ruskGap,
+                    passed: false
+                });
+            }
+            frameCount++;
+
+            for (let i = rusks.length - 1; i >= 0; i--) {
+                rusks[i].x -= ruskSpeed;
+
+                drawRuskPillar(rusks[i].x, 0, ruskWidth, rusks[i].top);
+
+                const bottomY = canvas.height - rusks[i].bottom;
+                drawRuskPillar(rusks[i].x, bottomY, ruskWidth, rusks[i].bottom);
+
+                if (
+                    clown.x + clown.width > rusks[i].x &&
+                    clown.x < rusks[i].x + ruskWidth &&
+                    (clown.y < rusks[i].top || clown.y + clown.height > canvas.height - rusks[i].bottom)
+                ) {
+                    gameOver = true;
+                }
+
+                if (!rusks[i].passed && rusks[i].x + ruskWidth < clown.x) {
+                    rusks[i].passed = true;
+                    score++;
+                    scoreBoard.textContent = "Σκορ: " + score;
+                }
+
+                if (rusks[i].x + ruskWidth < 0) {
+                    rusks.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script>
+
+</body>
+</html>
